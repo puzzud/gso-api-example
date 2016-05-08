@@ -1,0 +1,23 @@
+<html lang="en">
+  <head>
+    <meta name="google-signin-client_id" content="462141332845-s69n21aa3h2lgcv3r42nbeavurev5434.apps.googleusercontent.com">
+    <script src="main.js" async defer></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  </head>
+  <body>
+    <div id="gso-button"></div>
+    <div id="gso-avatar"></div>
+    <a href="#" onclick="SignOut();">Sign Out</a></br>
+    <a href="#" onclick="PrintScopes();">Print Scopes</a></br>
+    <div id="gso-drive-buttons"></div>
+
+    <script type="text/javascript" async defer>
+      window.onload = function()
+      {
+        RenderSignOnButton( "gso-button" );
+      }
+    </script>
+
+    <script src="https://apis.google.com/js/client.js" async defer></script>
+  </body>
+</html>
