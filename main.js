@@ -409,20 +409,59 @@ function DeleteFiles()
     return;
   }
 
-  // TODO: Retrieve fileIds.
-  var fileId = "";
+  var q = "name='test.txt'";
 
-  /*
-  var request = gapi.client.request(
+  var options =
   {
-    'path': '/drive/v3/files/' + fileId,
-    'method': 'DELETE',
-    //'params': {'maxResults': '1'}
-  });
+    fields: 'files',
+    //spaces: 'appDataFolder',
+    'q': q
+  };
 
-  request.execute(function(resp)
+  gapi.client.drive.files.list( options )
+    .then( DeleteFoundFiles );
+}
+
+function DeleteFoundFiles( data )
+{
+  data = JSON.parse( data.body );
+  var fileList = data.files;
+
+  for( var i in fileList )
   {
-    resp = resp;
-  });
-  */
+    var file = fileList[i];
+    if( file.name === "test.txt" )
+    {
+      var fileId = file.id;
+      var options =
+      {
+        'path': '/drive/v3/files/' + fileId,
+        'method': 'DELETE'
+      };
+
+      // TODO: Figure out how to move a file to trash,
+      // instead of permanently deleting it.
+      /*
+      options =
+      { 
+        'path': '/drive/v3/files/' + fileId,
+        'method': 'PATCH',
+        'params': {'fileId': fileId, 'uploadType': 'media'},
+        //'headers': { 'Content-Type': 'multipart/form-data; boundary="' + boundary + '"', 'Authorization': 'Bearer ' + auth_token, },
+        //'body': multipartRequestBody
+        //'body': {'id': fileId, 'trashed': true}
+      };
+      */
+
+      console.log( file.name );
+
+      var request = gapi.client.request( options );
+      request.execute( OnDeleteFile );
+    }
+  }
+}
+
+function OnDeleteFile( response )
+{
+  response = response;
 }
