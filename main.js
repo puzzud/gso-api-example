@@ -322,19 +322,11 @@ function CreateFile()
     return;
   }
 
-  //OpenFile( 'files/test.txt' );
-  //return;
-
-  //var file = new File( ["asdf"], "test.txt" );
-
   var options =
   {
     //spaces: 'appDataFolder',
-    //resource: fileMetadata,
-    //media: media,
-    //fields: 'id',
-    mimeType: 'text/plain',
-    'name': 'test.txt',
+    "mimeType": "text/plain",
+    "name": "test.txt",
     //'parents': [ 'appDataFolder']
   };
 
@@ -342,47 +334,61 @@ function CreateFile()
     .then( OnFileCreate );
 }
 
-function OnFileCreate( data )
+function OnFileCreate( response )
 {
-  data = JSON.parse( data.body );
+  // Upload the contents of a recently created file.
+  responseBody = JSON.parse( response.body );
 
-  console.log( "File created:  " + data.name );
+  console.log( "File created:  " + responseBody.name );
 
-  var fileId = data.id;
-  //var path = '/drive/v3/files/'+fileId+'?uploadType=media';
+  var fileId = responseBody.id;
   var text = "asdf";
 
-  const boundary = '-------314159265358979323846';
+  const boundary = "-------314159265358979323846"; 
   const delimiter = "\r\n--" + boundary + "\r\n";
-  const close_delim = "\r\n--" + boundary + "--";
+  const closeDelimiter = "\r\n--" + boundary + "--";
 
-  var metadata = { 
-      description : 'savefile for my game',
-      'mimeType': 'text/plain'
-  };  
-
-  var multipartRequestBody =
-    delimiter +  'Content-Type: text/plain\r\n\r\n' +
-    JSON.stringify(metadata) +
-    delimiter + 'Content-Type: text/plain\r\n\r\n' +
-    text +
-    close_delim;
-
-  multipartRequestBody = text;
-
-  var request = gapi.client.request
-    ( { 
-     'path': '/upload/drive/v3/files/' + fileId,
-     'method': 'PATCH',
-     'params': {'fileId': fileId, 'uploadType': 'multipart'},
-     //'headers': { 'Content-Type': 'multipart/form-data; boundary="' + boundary + '"', 'Authorization': 'Bearer ' + auth_token, },
-     'body': multipartRequestBody 
-     });
-
-  request.execute(function(resp)
+  //var contentType = fileData.type || 'application/octet-stream';
+  var contentType = "text/plain";
+  var metadata =
   {
-    resp = resp;
-  });
+    "title": "test.txt",
+    "mimeType": contentType
+  };
+
+  var base64Data = btoa( text );
+  var multipartRequestBody =
+      delimiter +
+      "Content-Type: application/json\r\n\r\n" +
+      JSON.stringify( metadata ) +
+      delimiter +
+      "Content-Type: " + contentType + "\r\n" +
+      "Content-Transfer-Encoding: base64\r\n" +
+      "\r\n" +
+      base64Data +
+      closeDelimiter;
+
+  var params =
+  {
+    "uploadType": "multipart"
+  }
+
+  var options =
+  {
+    "path": "/upload/drive/v3/files/" + fileId,
+    "method": "PATCH",
+    "params": params,
+    "headers": {"Content-Type": "multipart/mixed; boundary=\"" + boundary + "\""},
+    "body": multipartRequestBody
+  };
+
+  var request = gapi.client.request( options );
+  request.execute( OnFileUpdate );
+}
+
+function OnFileUpdate( response )
+{
+  response = response;
 }
 
 function OpenFile( fileName )
