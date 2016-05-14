@@ -290,28 +290,33 @@ function OnDownloadFile( content )
   console.log( content );
 }
 
-function DownloadFile( file, callback )
+function DownloadFileById( fileId )
 {
-  /*
-  if (file.webContentLink)
+  options =
   {
-    var googleUser = GetGoogleUser();
-    var id_token = googleUser.getAuthResponse().id_token;
-    var accessToken = id_token;//token.access_token;
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', file.webContentLink);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-    xhr.onload = function() {
-      callback(xhr.responseText);
-    };
-    xhr.onerror = function() {
-      callback(null);
-    };
-    xhr.send();
-  } else {
-    callback(null);
+    "fileId": fileId,
+    "alt": "media"
+  };
+
+  gapi.client.drive.files.get( options ).then( OnDownloadFile );
+}
+
+function OnDownloadFile( response )
+{
+  if( response === undefined || response.body === undefined )
+  {
+    console.error( "Failed to download file." );
+    return;
   }
-  */
+
+  var responseBody = response.body;
+
+  var textToDisplay = responseBody;
+
+  var pElement = document.createElement( "p" );
+  var textNode = document.createTextNode( textToDisplay );
+  pElement.appendChild( textNode );
+  document.body.appendChild( pElement );
 }
 
 function CreateFile()
@@ -389,6 +394,8 @@ function OnFileCreate( response )
 function OnFileUpdate( response )
 {
   response = response;
+
+  DownloadFileById( response.id );
 }
 
 function OpenFile( fileName )
